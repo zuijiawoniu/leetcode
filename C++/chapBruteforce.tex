@@ -439,16 +439,16 @@ public:
 // 时间复杂度O(n!)，空间复杂度O(1)
 class Solution {
 public:
-    vector<vector<int>> permute(vector<int>& num) {
+    vector<vector<int> > permute(vector<int> &num) {
+        vector<vector<int> > result;
         sort(num.begin(), num.end());
 
-        vector<vector<int>> permutations;
-
         do {
-            permutations.push_back(num);
-        } while (next_permutation(num.begin(), num.end())); // 见第2.1节
-
-        return permutations;
+            result.push_back(num);
+        // 调用的是 2.1.12 节的 next_permutation()
+        // 而不是 std::next_permutation()
+        } while(next_permutation(num.begin(), num.end()));
+        return result;
     }
 };
 \end{Code}
@@ -733,6 +733,7 @@ public:
 
     vector<string> letterCombinations (const string &digits) {
         vector<string> result;
+        if (digits.empty()) return result;
         dfs(digits, 0, "", result);
         return result;
     }
@@ -761,6 +762,7 @@ public:
             "ghi", "jkl", "mno", "pqrs", "tuv", "wxyz" };
 
     vector<string> letterCombinations (const string &digits) {
+        if (digits.empty()) return vector<string>();
         vector<string> result(1, "");
         for (auto d : digits) {
             const size_t n = result.size();

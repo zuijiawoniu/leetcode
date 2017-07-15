@@ -56,14 +56,11 @@ class Solution {
 public:
     vector<int> preorderTraversal(TreeNode *root) {
         vector<int> result;
-        const TreeNode *p;
         stack<const TreeNode *> s;
-
-        p = root;
-        if (p != nullptr) s.push(p);
+        if (root != nullptr) s.push(root);
 
         while (!s.empty()) {
-            p = s.top();
+            const TreeNode *p = s.top();
             s.pop();
             result.push_back(p->val);
 
@@ -84,9 +81,8 @@ class Solution {
 public:
     vector<int> preorderTraversal(TreeNode *root) {
         vector<int> result;
-        TreeNode *cur, *prev;
+        TreeNode *cur = root, *prev = nullptr;
 
-        cur = root;
         while (cur != nullptr) {
             if (cur->left == nullptr) {
                 result.push_back(cur->val);
@@ -157,8 +153,8 @@ class Solution {
 public:
     vector<int> inorderTraversal(TreeNode *root) {
         vector<int> result;
-        const TreeNode *p = root;
         stack<const TreeNode *> s;
+        const TreeNode *p = root;
 
         while (!s.empty() || p != nullptr) {
             if (p != nullptr) {
@@ -185,9 +181,8 @@ class Solution {
 public:
     vector<int> inorderTraversal(TreeNode *root) {
         vector<int> result;
-        TreeNode *cur, *prev;
+        TreeNode *cur = root, *prev = nullptr;
 
-        cur = root;
         while (cur != nullptr) {
             if (cur->left == nullptr) {
                 result.push_back(cur->val);
@@ -258,11 +253,9 @@ class Solution {
 public:
     vector<int> postorderTraversal(TreeNode *root) {
         vector<int> result;
-        /* p，正在访问的结点，q，刚刚访问过的结点*/
-        const TreeNode *p, *q;
         stack<const TreeNode *> s;
-
-        p = root;
+        /* p，正在访问的结点，q，刚刚访问过的结点*/
+        const TreeNode *p = root, *q = nullptr;
 
         do {
             while (p != nullptr) { /* 往左下走*/
@@ -375,7 +368,7 @@ private:
 
 
 \subsection{Binary Tree Level Order Traversal}
-\label{sec:binary-tree-tevel-order-traversal}
+\label{sec:binary-tree-level-order-traversal}
 
 
 \subsubsection{描述}
@@ -438,13 +431,16 @@ class Solution {
 public:
     vector<vector<int> > levelOrder(TreeNode *root) {
         vector<vector<int> > result;
-        if(root == nullptr) return result;
-
         queue<TreeNode*> current, next;
-        vector<int> level; // elments in level level
+        
+        if(root == nullptr) {
+            return result;
+        } else {
+            current.push(root);
+        }
 
-        current.push(root);
         while (!current.empty()) {
+            vector<int> level; // elments in one level
             while (!current.empty()) {
                 TreeNode* node = current.front();
                 current.pop();
@@ -453,7 +449,6 @@ public:
                 if (node->right != nullptr) next.push(node->right);
             }
             result.push_back(level);
-            level.clear();
             swap(next, current);
         }
         return result;
@@ -628,42 +623,36 @@ public:
 
 \subsubsection{迭代版}
 \begin{Code}
-//LeetCode, Binary Tree Zigzag Level Order Traversal
-//广度优先遍历，用一个bool记录是从左到右还是从右到左，每一层结束就翻转一下。
+// LeetCode, Binary Tree Zigzag Level Order Traversal
+// 广度优先遍历，用一个bool记录是从左到右还是从右到左，每一层结束就翻转一下。
 // 迭代版，时间复杂度O(n)，空间复杂度O(n)
 class Solution {
 public:
     vector<vector<int> > zigzagLevelOrder(TreeNode *root) {
         vector<vector<int> > result;
-        if (nullptr == root) return result;
-
-        queue<TreeNode*> q;
-        bool left_to_right = true;  //left to right
-        vector<int> level;  // one level's elements
-
-        q.push(root);
-        q.push(nullptr);  // level separator
-        while (!q.empty()) {
-            TreeNode *cur = q.front();
-            q.pop();
-            if (cur) {
-                level.push_back(cur->val);
-                if (cur->left) q.push(cur->left);
-                if (cur->right) q.push(cur->right);
-            } else {
-                if (left_to_right) {
-                    result.push_back(level);
-                } else {
-                    reverse(level.begin(), level.end());
-                    result.push_back(level);
-                }
-                level.clear();
-                left_to_right = !left_to_right;
-
-                if (q.size() > 0) q.push(nullptr);
-            }
+        queue<TreeNode*> current, next;
+        bool left_to_right = true;
+        
+        if(root == nullptr) {
+            return result;
+        } else {
+            current.push(root);
         }
 
+        while (!current.empty()) {
+            vector<int> level; // elments in one level
+            while (!current.empty()) {
+                TreeNode* node = current.front();
+                current.pop();
+                level.push_back(node->val);
+                if (node->left != nullptr) next.push(node->left);
+                if (node->right != nullptr) next.push(node->right);
+            }
+            if (!left_to_right) reverse(level.begin(), level.end());
+            result.push_back(level);
+            left_to_right = !left_to_right;
+            swap(next, current);
+        }
         return result;
     }
 };
@@ -844,14 +833,15 @@ Two binary trees are considered equal if they are structurally identical and the
 class Solution {
 public:
     bool isSymmetric(TreeNode *root) {
-        return root ? isSymmetric(root->left, root->right) : true;
+        if (root == nullptr) return true;
+        return isSymmetric(root->left, root->right);
     }
-    bool isSymmetric(TreeNode *left, TreeNode *right) {
-        if (!left && !right) return true;   // 终止条件
-        if (!left || !right) return false;  // 终止条件
-        return left->val == right->val      // 三方合并
-                && isSymmetric(left->left, right->right)
-                && isSymmetric(left->right, right->left);
+    bool isSymmetric(TreeNode *p, TreeNode *q) {
+        if (p == nullptr && q == nullptr) return true;   // 终止条件
+        if (p == nullptr || q == nullptr) return false;  // 终止条件
+        return p->val == q->val      // 三方合并
+                && isSymmetric(p->left, q->right)
+                && isSymmetric(p->right, q->left);
     }
 };
 \end{Code}
@@ -1457,15 +1447,15 @@ Assume a BST is defined as follows:
 \subsubsection{代码}
 
 \begin{Code}
-// LeetCode, Validate Binary Search Tree
+// Validate Binary Search Tree
 // 时间复杂度O(n)，空间复杂度O(\logn)
 class Solution {
 public:
     bool isValidBST(TreeNode* root) {
-        return isValidBST(root, INT_MIN, INT_MAX);
+        return isValidBST(root, LONG_MIN, LONG_MAX);
     }
 
-    bool isValidBST(TreeNode* root, int lower, int upper) {
+    bool isValidBST(TreeNode* root, long long lower, long long upper) {
         if (root == nullptr) return true;
 
         return root->val > lower && root->val < upper
